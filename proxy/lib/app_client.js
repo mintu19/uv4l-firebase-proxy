@@ -148,6 +148,9 @@ module.exports  = class AppClient {
             };
             if (message.data !== "") {
                 data = JSON.parse(message.data);
+            } else {
+                logger.info('Empty Candidate!!! Returning');
+                return;
             }
             m.msg.candidate = data.candidate;
             m.msg.label = data.sdpMLineIndex;
@@ -274,14 +277,14 @@ module.exports  = class AppClient {
                         message = JSON.stringify(m);
                         this.deactivateSession_();
                     } else if( send_msg.type == 'answer' ) {
-                        logger.info('Sending answer');
+                        logger.info('Sending answer to device');
                         m = {
                             what: "answer",
                             data: JSON.stringify(send_msg)
                         }
                         message = JSON.stringify(m);
                     } else if( send_msg.type == 'candidate' ) {
-                        logger.info('Sending candidate');
+                        logger.info('Sending candidate to device');
                         let candidate = {
                             candidate: send_msg.candidate,
                             sdpMLineIndex: send_msg.label,
