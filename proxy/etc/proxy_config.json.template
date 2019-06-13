@@ -9,7 +9,7 @@
         "password" : "your-frontend-email-id-password"
     },
     "local-device-config" : {
-        "url": "ws://127.0.0.1:8889/rws/ws",
+        "url": "wss://127.0.0.1:8080/stream/webrtc",
         "title": "Livinging Room",
         "description": "",
         "deviceId": "1",
