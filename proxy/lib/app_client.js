@@ -146,15 +146,16 @@ module.exports  = class AppClient {
             let data = {
                 candidate: ""
             };
+  	    // logger.info('GotICE : ' + JSON.stringify(message) );
             if (message.data !== "") {
                 data = JSON.parse(message.data);
-            } else {
+            }/* else {
                 logger.info('Empty Candidate!!! Returning');
                 return;
-            }
+            }*/
             m.msg.candidate = data.candidate;
-            m.msg.label = data.sdpMLineIndex;
-            m.msg.id = data.sdpMid;
+            m.msg.label = data.sdpMLineIndex || 0;
+            m.msg.id = data.sdpMid || "";
         } else if (message.what == "message") {
             m.msg.type = "error";
             m.error = message.data;
@@ -245,8 +246,8 @@ module.exports  = class AppClient {
                         let m = {
                             what: "call",
                             options: {
-                               force_hw_vcodec: true,
-                               vformat: 30,
+                               force_hw_vcodec: json_message.force_hw_vcodec || false,
+                               vformat: json_message.vformat || 60,
                                trickle_ice: true
                             }
                         };
@@ -306,7 +307,7 @@ module.exports  = class AppClient {
                     }
                 } else  {
                     // print validation result
-                    logger.error('Invalid Session Message : ' + JSON.stringify(app_message ));
+                    // logger.error('Invalid Session Message : ' + JSON.stringify(app_message ));
                 };
                 break;
             case MSG_CMD_KEEPALIVE:
