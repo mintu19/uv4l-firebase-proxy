@@ -19,6 +19,7 @@ module.exports  = class WebSocketClient {
         this.messageCallback_ = messageCallback;    
         this.isConnected_  = false;
         this.url_ = url;
+        this.regMsg_ = "";
         if( observerCallback ) {
             this.observerCallback_ = observerCallback;  // observer callback
         } else {
@@ -37,10 +38,11 @@ module.exports  = class WebSocketClient {
         logger.info('connection: ' + conn_status + ', Error: ' + data );
     }
 
-    initWebSocket () {
+    initWebSocket (message) {
         logger.debug('Create new websocket object');
         // clear the queue before create websocket
         this.message_queue_.length = 0;
+        this.regMsg_ = message;
         delete this.websocket_;
         this.websocket_ = new WebSocket(this.url_, {
             rejectUnauthorized: false
@@ -58,9 +60,10 @@ module.exports  = class WebSocketClient {
     onOpen_ () {
         logger.info("Websocket connnected: " + this.websocket_.url);
         this.observerCallback_('connected',this.websocket_.url);
-        clearTimeout(this.reInitTimerObj_);
+        // clearTimeout(this.reInitTimerObj_);
         this.isConnected_ = true;
         this.queueSend_();
+        this.doSendMessage(this.regMsg_);
         // register onMessage callback when websocket connected
         this.websocket_.on('message',this.onMessage_.bind(this));
     }
@@ -70,7 +73,7 @@ module.exports  = class WebSocketClient {
         this.observerCallback_('disconnected',this.websocket_.url);
         this.isConnected_ = false;
         // create the reinit timer
-        this.reInitTimerObj_ = setTimeout(this.initWebSocket.bind(this),this.reconnectInterval_);
+        // this.reInitTimerObj_ = setTimeout(this.initWebSocket.bind(this),this.reconnectInterval_);
     }
 
     onMessage_  (message) {
@@ -86,9 +89,9 @@ module.exports  = class WebSocketClient {
         if( this.isConnected_ == true && this.websocket_.readyState == WebSocket.OPEN ){
             logger.debug('Message to Device : ' + message );
             this.websocket_.send(message);
-        } // else {
-        //     this.queuePush_(message);
-        // }
+        } else {
+            this.queuePush_(message);
+        }
     }
 
     doDisconnect () {
@@ -114,7 +117,3 @@ module.exports  = class WebSocketClient {
         }
     }
 };
-
-
-
-

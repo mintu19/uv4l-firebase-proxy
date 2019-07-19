@@ -181,9 +181,9 @@ module.exports  = class AppClient {
     }
 
     // Start WebSocket connection
-    deviceConnect() {
+    deviceConnect(message) {
         logger.info('Trying to connenct device through WebSocket');
-        this.websocketClient_.initWebSocket();
+        this.websocketClient_.initWebSocket(message);
     }
 
     // It is called when the connection state of websocket changes.
@@ -242,21 +242,18 @@ module.exports  = class AppClient {
                 if( this.validateSession_(json_message.roomid, json_message.clientid) == true){
                     // sending message
                     this.activateSession_(json_message.roomid, json_message.clientid );
-                    if( this.websocketClient_.isConnected() ) {
-                        let m = {
-                            what: "call",
-                            options: {
-                               force_hw_vcodec: json_message.force_hw_vcodec || false,
-                               vformat: json_message.vformat || 60,
-                               trickle_ice: true
-                            }
-                        };
-                        let message = JSON.stringify(m);
-                        logger.info('Server -> Device : ' + message );
-                        this.websocketClient_.doSendMessage(message);
-                    } else {
-                        logger.error('WebSocketClient is not ready to send register command');
+                    let m = {
+                        what: "call",
+                        options: {
+                            force_hw_vcodec: json_message.force_hw_vcodec || false,
+                            vformat: json_message.vformat || 60,
+                            trickle_ice: true
+                        }
                     };
+                    let message = JSON.stringify(m);
+                    logger.info('Server -> Device : ' + message );
+                    this.deviceConnect(message);
+                    // this.websocketClient_.doSendMessage(message);
                 } else {
                     // print validation result
                     logger.error('Invalid Session Message : ' + JSON.stringify(app_message ));

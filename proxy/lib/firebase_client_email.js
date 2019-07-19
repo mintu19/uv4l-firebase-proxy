@@ -45,6 +45,10 @@ module.exports  = class FirebaseClientEmail {
         // Short cut to firebase auth and database
         this.auth_ = firebase.auth();
         this.database_ = firebase.firestore();
+
+        const settings = {timestampsInSnapshots: true};
+        this.database_.settings(settings);
+
         firebase.auth().onAuthStateChanged( this.onAuthStateChanged_.bind(this));
 
         // signin to google firebase with email/password method.
@@ -115,7 +119,6 @@ module.exports  = class FirebaseClientEmail {
         let onNewDatabaseMessage = function(snap) {
             let val = snap.data();
             logger.debug(val);
-            let messageTimeDiff = new Date().getTime() - val.timestamp;
 
             /*let val = snap.val();
             let messageTimeDiff = new Date().getTime() + this.serverTimeOffset_  -  val.timestamp;
@@ -128,6 +131,11 @@ module.exports  = class FirebaseClientEmail {
 
             // only care about messages to device
             if( val.to == 'device' ) {
+
+                // checking inside cause no timestamp on add
+                let messageTimeDiff = new Date().getTime() - val.timestamp.toMillis();
+                logger.debug('message Time Diff: ' + messageTimeDiff );
+
                 // Make sure that message is not a message that has passed timeout.
                 if( messageTimeDiff < this.message_timeout_ ){ 
                     // logger.debug('message Svr -> C: ' + val.message );
@@ -153,7 +161,7 @@ module.exports  = class FirebaseClientEmail {
         })
 
         // connect device
-        this.app_client_.deviceConnect();
+        // this.app_client_.deviceConnect();
     }
 
     initDeviceInfo () {
@@ -188,7 +196,7 @@ module.exports  = class FirebaseClientEmail {
 
         // update current device Info 
         this.deviceInfo_.dbconn = 'connected';
-        this.deviceInfo_.session = 'not available'; // default init value
+        this.deviceInfo_.session = 'not_available'; // default init value
         // this.presenceRef_.update(this.deviceInfo_);
         this.presenceRef_.set({
             deviceInfo: this.deviceInfo_
@@ -285,5 +293,3 @@ module.exports  = class FirebaseClientEmail {
         return x;
     }
 };
-
-
