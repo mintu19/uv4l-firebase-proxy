@@ -186,8 +186,8 @@ module.exports  = class FirebaseClientEmail {
         // this.presenceRef_ = this.database_.ref('devices/' + this.uid_ + '/' + this.deviceId_);
 
         // setting object for onDisconnect 
-        this.deviceInfo_.dbconn = 'disconnected';
-        this.deviceInfo_.session = 'disconnected';
+        // this.deviceInfo_.dbconn = 'disconnected';
+        // this.deviceInfo_.session = 'disconnected';
         /*this.presenceRef_.update({
             deviceInfo: FieldValue.delete()
         });*/
@@ -195,8 +195,8 @@ module.exports  = class FirebaseClientEmail {
         // this.presenceRef_.onDisconnect().set(this.deviceInfo_);
 
         // update current device Info 
-        this.deviceInfo_.dbconn = 'connected';
-        this.deviceInfo_.session = 'not_available'; // default init value
+        this.deviceInfo_.dbconn = 'disconnected';
+        this.deviceInfo_.session = 'available'; // default init value
         // this.presenceRef_.update(this.deviceInfo_);
         this.presenceRef_.set({
             deviceInfo: this.deviceInfo_
@@ -227,21 +227,28 @@ module.exports  = class FirebaseClientEmail {
             case 'connected':
                 update_deviceinfo.dbconn = 'connected';
                 update_deviceinfo.update_timestamp = FieldValue.serverTimestamp();
-                update_deviceinfo.session = 'available';
+                update_deviceinfo.session = 'busy';
                 break;
             case 'disconnected':
                 update_deviceinfo.dbconn = 'disconnected';
                 update_deviceinfo.update_timestamp = FieldValue.serverTimestamp();
-                update_deviceinfo.session = 'not_available';
+                update_deviceinfo.session = 'available';
                 break;
             case 'session_connected':
-                update_deviceinfo.session = 'busy';
-                update_deviceinfo.access_timestamp = FieldValue.serverTimestamp();
-                break;
+                // update_deviceinfo.session = 'busy';
+                // update_deviceinfo.access_timestamp = FieldValue.serverTimestamp();
+                // break;
+                return;
             case 'session_disconnected':
-                update_deviceinfo.session = 'available';
-                update_deviceinfo.access_timestamp = FieldValue.serverTimestamp();
-                break;
+                // update_deviceinfo.session = 'available';
+                // update_deviceinfo.access_timestamp = FieldValue.serverTimestamp();
+                // break;
+                return;
+            case 'error':
+                    update_deviceinfo.dbconn = 'disconnected';
+                    update_deviceinfo.update_timestamp = FieldValue.serverTimestamp();
+                    update_deviceinfo.session = 'available';
+                    break;
             default:
                 logger.error('Unknown AppClient Connection status: ' + conn_status );
                 return;

@@ -198,6 +198,7 @@ module.exports  = class AppClient {
         }
         else {
             logger.info('Error : ' + data );
+            this.onAppClientObserver_('error');
         }
     }
 
